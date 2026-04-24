@@ -42,6 +42,7 @@ export default function ProjectHologram({ project }) {
     e.stopPropagation();
     setCameraTarget({ position: project.position, distance: 4 });
     openProject(project);
+    window.playClickSound?.();
   };
 
   return (
@@ -54,6 +55,7 @@ export default function ProjectHologram({ project }) {
           e.stopPropagation();
           setHovered(true);
           document.body.style.cursor = "pointer";
+          window.playHoverSound?.();
         }}
         onPointerOut={() => {
           setHovered(false);

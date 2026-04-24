@@ -12,7 +12,7 @@ import {
 import { EffectComposer, Bloom, Vignette } from "@react-three/postprocessing";
 import MASLogo from "./MASLogo.jsx";
 import ProjectHologram from "./ProjectHologram.jsx";
-import SkillsOrb from "./SkillsOrb.jsx";
+import SkillsCluster from "./SkillsCluster.jsx";
 import AboutPedestal from "./AboutPedestal.jsx";
 import ContactTerminal from "./ContactTerminal.jsx";
 import ResumeObelisk from "./ResumeObelisk.jsx";
@@ -60,7 +60,7 @@ export default function Scene() {
       <group>
         <MASLogo position={[0, 4.6, 0]} />
         <AboutPedestal position={[0, 0.25, 0]} />
-        <SkillsOrb position={[-8, 3.6, 2]} />
+        <SkillsCluster position={[-8, 3.6, 2]} />
         <ResumeObelisk position={[8, 2.4, 2]} />
         <ContactTerminal position={[0, 1.2, -8]} />
 
