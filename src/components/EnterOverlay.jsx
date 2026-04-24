@@ -1,35 +1,45 @@
 import React from "react";
-import { useStore } from "../utils/useStore";
+import { useStore } from "../utils/useStore.js";
+import { profile } from "../data/profile.js";
 
 export default function EnterOverlay() {
-  const setEntered = useStore((s) => s.setEntered);
+  const loaded = useStore((s) => s.loaded);
+  const entered = useStore((s) => s.entered);
+  const enter = useStore((s) => s.enter);
+  const toggleMuted = useStore((s) => s.toggleMuted);
+  const muted = useStore((s) => s.muted);
+
+  if (!loaded || entered) return null;
+
+  const handleEnter = (withSound) => {
+    if (withSound && muted) toggleMuted();
+    enter();
+  };
 
   return (
-    <div style={{
-      position: "fixed",
-      inset: 0,
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      justifyContent: "center",
-      background: "rgba(11, 17, 32, 0.8)",
-      backdropFilter: "blur(10px)",
-      zIndex: 900
-    }}>
-      <h1 style={{ marginBottom: "2rem" }}>MUSHTAQ AHMAD SAQI</h1>
-      <button 
-        onClick={() => setEntered(true)}
-        style={{
-          padding: "1rem 2rem",
-          background: "transparent",
-          border: "2px solid #38bdf8",
-          color: "#38bdf8",
-          cursor: "pointer",
-          fontSize: "1.2rem"
-        }}
-      >
-        ENTER EXPERIENCE
-      </button>
+    <div className="enter-overlay">
+      <div className="enter-content">
+        <p className="enter-eyebrow">Welcome to the studio of</p>
+        <h1 className="enter-name">
+          {profile.name.split(" ").slice(0, -1).join(" ")}{" "}
+          <span className="enter-serif">{profile.name.split(" ").slice(-1)}</span>
+        </h1>
+        <p className="enter-sub">
+          A 3D, interactive portfolio. Float through holograms of real projects, skills, and
+          contact channels. {profile.role} · {profile.university}.
+        </p>
+        <div className="enter-actions">
+          <button className="btn btn-primary" onClick={() => handleEnter(true)}>
+            Enter with sound
+          </button>
+          <button className="btn btn-ghost" onClick={() => handleEnter(false)}>
+            Enter silently
+          </button>
+        </div>
+        <p className="enter-hint">
+          Drag to look around · Click holograms to open details · Press <kbd>T</kbd> for guided tour
+        </p>
+      </div>
     </div>
   );
 }
