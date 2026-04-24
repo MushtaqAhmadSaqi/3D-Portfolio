@@ -1,0 +1,27 @@
+:root {
+  --primary: #38bdf8;
+  --secondary: #a78bfa;
+  --tertiary: #f472b6;
+  --bg: #0b1120;
+  --bg-alt: #111827;
+  --text: #e5eefb;
+  --text-soft: #b6c3d8;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-space: border-box;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  overflow: hidden;
+}
+
+#root {
+  width: 100vw;
+  height: 100vh;
+}
