@@ -1,8 +1,32 @@
-import React, { useRef, useState } from "react";
+import React, { Suspense, useEffect, useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
 import { useTexture, Float, Html, RoundedBox } from "@react-three/drei";
 import * as THREE from "three";
 import { useStore } from "../utils/useStore.js";
+
+function ProjectTextureMaterial({ src }) {
+  const texture = useTexture(src);
+
+  useEffect(() => {
+    texture.colorSpace = THREE.SRGBColorSpace;
+    texture.anisotropy = 4;
+    texture.needsUpdate = true;
+  }, [texture]);
+
+  return <meshBasicMaterial map={texture} toneMapped={false} />;
+}
+
+function ProjectScreenMaterial({ project }) {
+  if (!project.preview) {
+    return <meshBasicMaterial color={project.accent} toneMapped={false} />;
+  }
+
+  return (
+    <Suspense fallback={<meshBasicMaterial color={project.accent} toneMapped={false} />}>
+      <ProjectTextureMaterial src={project.preview} />
+    </Suspense>
+  );
+}
 
 /**
  * Floating holographic "screen" for a single project.
@@ -17,24 +41,29 @@ export default function ProjectHologram({ project }) {
   const glowRef = useRef();
   const [hovered, setHovered] = useState(false);
 
-  // Load preview. If missing, Drei/three will throw — we wrap with suspense fallback via React.
-  let texture = null;
-  try {
-    texture = useTexture(project.preview);
-    if (texture) {
-      texture.colorSpace = THREE.SRGBColorSpace;
-      texture.anisotropy = 8;
-    }
-  } catch (e) {
-    texture = null;
-  }
-
-  useFrame((state) => {
+  useFrame((state, dt) => {
     if (!meshRef.current) return;
+
     const t = state.clock.elapsedTime;
-    meshRef.current.position.y = (project.position?.[1] ?? 1) + Math.sin(t * 0.9 + project.position[0]) * 0.08;
+    const baseY = project.position?.[1] ?? 1;
+    const targetScale = hovered ? 1.055 : 1;
+
+    meshRef.current.position.y =
+      baseY + Math.sin(t * 0.75 + project.position[0]) * 0.065;
+
+    const smoothScale = THREE.MathUtils.damp(
+      meshRef.current.scale.x,
+      targetScale,
+      10,
+      dt
+    );
+
+    meshRef.current.scale.setScalar(smoothScale);
+
     if (glowRef.current) {
-      glowRef.current.material.opacity = hovered ? 0.55 : 0.2 + Math.sin(t * 1.5) * 0.05;
+      glowRef.current.material.opacity = hovered
+        ? THREE.MathUtils.damp(glowRef.current.material.opacity, 0.5, 8, dt)
+        : 0.18 + Math.sin(t * 1.2) * 0.035;
     }
   });
 
@@ -46,7 +75,7 @@ export default function ProjectHologram({ project }) {
   };
 
   return (
-    <Float speed={0.9} rotationIntensity={0.15} floatIntensity={0.25}>
+    <Float speed={0.8} rotationIntensity={0.12} floatIntensity={0.2}>
       <group
         ref={meshRef}
         position={project.position}
@@ -62,27 +91,22 @@ export default function ProjectHologram({ project }) {
           document.body.style.cursor = "auto";
         }}
         onClick={handleClick}
-        scale={hovered ? 1.06 : 1}
       >
         {/* Frame */}
         <RoundedBox args={[3.2, 2.0, 0.12]} radius={0.08} smoothness={4}>
           <meshStandardMaterial
             color="#0b1120"
             emissive={project.accent}
-            emissiveIntensity={hovered ? 0.6 : 0.25}
-            metalness={0.8}
-            roughness={0.2}
+            emissiveIntensity={hovered ? 0.52 : 0.22}
+            metalness={0.78}
+            roughness={0.24}
           />
         </RoundedBox>
 
         {/* Screen */}
         <mesh position={[0, 0, 0.065]}>
           <planeGeometry args={[3.0, 1.82]} />
-          {texture ? (
-            <meshBasicMaterial map={texture} toneMapped={false} />
-          ) : (
-            <meshBasicMaterial color={project.accent} toneMapped={false} />
-          )}
+          <ProjectScreenMaterial project={project} />
         </mesh>
 
         {/* Glow halo */}
@@ -91,7 +115,7 @@ export default function ProjectHologram({ project }) {
           <meshBasicMaterial
             color={project.accent}
             transparent
-            opacity={0.22}
+            opacity={0.2}
             depthWrite={false}
           />
         </mesh>
