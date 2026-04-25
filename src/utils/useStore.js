@@ -14,8 +14,10 @@ export const useStore = create((set, get) => ({
   activeProject: null,
   openProject: (p) => set({ activeProject: p }),
   closeProject: () => set({ activeProject: null }),
+
   aboutOpen: false,
   toggleAbout: (v) => set({ aboutOpen: v ?? !get().aboutOpen }),
+
   contactOpen: false,
   toggleContact: (v) => set({ contactOpen: v ?? !get().contactOpen }),
 
@@ -25,7 +27,7 @@ export const useStore = create((set, get) => ({
   tourStep: 0,
   setTourStep: (n) => set({ tourStep: n }),
 
-  // Camera target (for smooth focus transitions)
+  // Camera target for smooth focus transitions
   cameraTarget: null,
   setCameraTarget: (t) => set({ cameraTarget: t }),
 
@@ -33,7 +35,20 @@ export const useStore = create((set, get) => ({
   muted: true,
   toggleMuted: () => set({ muted: !get().muted }),
 
-  // Fallback
+  // Experience routing
+  // null = automatic, "2d" = force fallback, "3d" = force 3D even on low-power devices
+  experienceOverride: null,
+  setExperienceOverride: (mode) =>
+    set({
+      experienceOverride: mode,
+      forceFallback: mode === "2d",
+    }),
+
+  // Backward-compatible fallback controls used by the current HUD
   forceFallback: false,
-  setForceFallback: (v) => set({ forceFallback: v }),
+  setForceFallback: (v) =>
+    set({
+      forceFallback: v,
+      experienceOverride: v ? "2d" : null,
+    }),
 }));

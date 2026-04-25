@@ -13,26 +13,45 @@ import { useDeviceCapability } from "./utils/useDeviceCapability.js";
 import { useStore } from "./utils/useStore.js";
 
 export default function App() {
-  const { isLowPower } = useDeviceCapability();
+  const capability = useDeviceCapability();
+
   const forceFallback = useStore((s) => s.forceFallback);
+  const experienceOverride = useStore((s) => s.experienceOverride);
+  const setExperienceOverride = useStore((s) => s.setExperienceOverride);
   const entered = useStore((s) => s.entered);
 
-  // Allow users to opt into the 3D experience even on low-power
-  // devices via ?force=3d, or opt into the 2D fallback via ?mode=2d
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    if (params.get("mode") === "2d") useStore.setState({ forceFallback: true });
-  }, []);
+    const mode = params.get("mode");
+    const force = params.get("force");
 
-  if (isLowPower || forceFallback) return <MobileFallback />;
+    if (mode === "2d") setExperienceOverride("2d");
+    if (mode === "3d" || force === "3d") setExperienceOverride("3d");
+  }, [setExperienceOverride]);
+
+  const shouldShowFallback =
+    experienceOverride === "2d" ||
+    forceFallback ||
+    (capability.isLowPower && experienceOverride !== "3d");
+
+  if (shouldShowFallback) {
+    return (
+      <MobileFallback
+        reason={capability.reason}
+        isRecommended={capability.isLowPower && experienceOverride !== "3d"}
+      />
+    );
+  }
 
   return (
     <>
       <LoadingScreen />
       {!entered && <EnterOverlay />}
+
       <Suspense fallback={null}>
         <Scene />
       </Suspense>
+
       {entered && (
         <>
           <HUD />
