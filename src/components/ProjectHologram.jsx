@@ -60,9 +60,6 @@ function CornerAccents({ color }) {
   );
 }
 
-/**
- * Floating holographic "screen" for a single project.
- */
 export default function ProjectHologram({ project }) {
   const openProject = useStore((s) => s.openProject);
   const focusTarget = useStore((s) => s.focusTarget);
@@ -73,12 +70,14 @@ export default function ProjectHologram({ project }) {
   const meshRef = useRef();
   const glowRef = useRef();
   const scanRef = useRef();
-  const [hovered, setHovered] = useState(false);
+  const featuredRingRef = useRef();
 
+  const [hovered, setHovered] = useState(false);
   useCursor(hovered);
 
   const isFocused = activeFocus?.id === project.id;
   const isActive = hovered || isFocused;
+  const isFeatured = Boolean(project.featured);
 
   useFrame((state, dt) => {
     if (!meshRef.current) return;
@@ -100,7 +99,13 @@ export default function ProjectHologram({ project }) {
     meshRef.current.scale.setScalar(smoothScale);
 
     if (glowRef.current) {
-      const targetOpacity = isActive ? 0.54 : 0.18 + Math.sin(t * 1.2) * 0.035;
+      const targetOpacity = isFeatured
+        ? isActive
+          ? 0.62
+          : 0.32 + Math.sin(t * 1.2) * 0.035
+        : isActive
+          ? 0.54
+          : 0.18 + Math.sin(t * 1.2) * 0.035;
 
       glowRef.current.material.opacity = THREE.MathUtils.damp(
         glowRef.current.material.opacity,
@@ -115,11 +120,15 @@ export default function ProjectHologram({ project }) {
       scanRef.current.position.y = -0.88 + ((t * 0.18 + number * 0.07) % 1.76);
       scanRef.current.material.opacity = isActive ? 0.18 : 0.1;
     }
+
+    if (featuredRingRef.current) {
+      featuredRingRef.current.rotation.z += dt * 0.12;
+      featuredRingRef.current.material.opacity = isActive ? 0.42 : 0.24;
+    }
   });
 
   const handleClick = (e) => {
     e.stopPropagation();
-
     focusTarget(getProjectFocusTarget(project));
     openProject(project);
     playClickSound();
@@ -142,11 +151,24 @@ export default function ProjectHologram({ project }) {
         }}
         onClick={handleClick}
       >
+        {isFeatured && (
+          <mesh ref={featuredRingRef} position={[0, 0, -0.11]}>
+            <ringGeometry args={[2.05, 2.09, 96]} />
+            <meshBasicMaterial
+              color="#38bdf8"
+              transparent
+              opacity={0.24}
+              depthWrite={false}
+              blending={THREE.AdditiveBlending}
+            />
+          </mesh>
+        )}
+
         <RoundedBox args={[3.25, 2.05, 0.13]} radius={0.08} smoothness={4}>
           <meshStandardMaterial
             color="#0b1120"
             emissive={project.accent}
-            emissiveIntensity={isActive ? 0.68 : 0.24}
+            emissiveIntensity={isFeatured ? (isActive ? 0.78 : 0.34) : (isActive ? 0.68 : 0.24)}
             metalness={0.82}
             roughness={0.22}
           />
@@ -196,7 +218,7 @@ export default function ProjectHologram({ project }) {
           <meshBasicMaterial
             color={project.accent}
             transparent
-            opacity={0.2}
+            opacity={isFeatured ? 0.32 : 0.2}
             depthWrite={false}
             blending={THREE.AdditiveBlending}
           />
@@ -209,13 +231,16 @@ export default function ProjectHologram({ project }) {
           style={{ pointerEvents: "none", userSelect: "none" }}
         >
           <div
-            className={`holo-label ${isFocused ? "holo-label-active" : ""}`}
+            className={`holo-label ${isFocused ? "holo-label-active" : ""} ${
+              isFeatured ? "holo-label-featured" : ""
+            }`}
             style={{ borderColor: project.accent }}
           >
             <span className="holo-number" style={{ color: project.accent }}>
               {project.number}
             </span>
             <span className="holo-title">{project.title}</span>
+            {isFeatured && <span className="featured-pill">Featured</span>}
           </div>
         </Html>
       </group>

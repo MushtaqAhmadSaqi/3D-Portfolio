@@ -4,13 +4,15 @@ import EnterOverlay from "./components/EnterOverlay.jsx";
 import Scene from "./components/Scene.jsx";
 import HUD from "./components/HUD.jsx";
 import Minimap from "./components/Minimap.jsx";
+import TourOverlay from "./components/TourOverlay.jsx";
+import QuickLinks from "./components/QuickLinks.jsx";
 import ProjectModal from "./components/ProjectModal.jsx";
 import AboutModal from "./components/AboutModal.jsx";
 import ContactModal from "./components/ContactModal.jsx";
 import SoundManager from "./components/SoundManager.jsx";
 import MobileFallback from "./components/MobileFallback.jsx";
 import { useDeviceCapability } from "./utils/useDeviceCapability.js";
-import { useStore } from "./utils/useStore.js";
+import { useStore } from "../utils/useStore.js";
 
 export default function App() {
   const capability = useDeviceCapability();
@@ -56,6 +58,8 @@ export default function App() {
         <>
           <HUD />
           <Minimap />
+          <TourOverlay />
+          <QuickLinks />
           <ProjectModal />
           <AboutModal />
           <ContactModal />
