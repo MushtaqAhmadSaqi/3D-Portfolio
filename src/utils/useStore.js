@@ -27,9 +27,37 @@ export const useStore = create((set, get) => ({
   tourStep: 0,
   setTourStep: (n) => set({ tourStep: n }),
 
-  // Camera target for smooth focus transitions
+  // Camera and focus
   cameraTarget: null,
-  setCameraTarget: (t) => set({ cameraTarget: t }),
+  activeFocus: null,
+
+  setCameraTarget: (target) =>
+    set({
+      cameraTarget: target,
+      activeFocus: target
+        ? {
+            id: target.id ?? target.label ?? "focus",
+            label: target.label ?? "Focused area",
+            kind: target.kind ?? "scene",
+            accent: target.accent ?? "#38bdf8",
+          }
+        : get().activeFocus,
+    }),
+
+  focusTarget: (target) =>
+    set({
+      cameraTarget: target,
+      activeFocus: target
+        ? {
+            id: target.id ?? target.label ?? "focus",
+            label: target.label ?? "Focused area",
+            kind: target.kind ?? "scene",
+            accent: target.accent ?? "#38bdf8",
+          }
+        : null,
+    }),
+
+  clearCameraTarget: () => set({ cameraTarget: null }),
 
   // Sound
   muted: true,

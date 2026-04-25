@@ -1,46 +1,63 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import { useStore } from "../utils/useStore.js";
 import { projects } from "../data/projects.js";
+import { getProjectFocusTarget, STATIC_FOCUS_TARGETS } from "../utils/focusTargets.js";
 
 /**
- * Guided tour: walks the camera through each point of interest, pausing briefly.
+ * Guided tour: walks the camera through each point of interest.
  * Press "T" to toggle, or use the HUD button.
  */
 export default function GuidedTour() {
   const mode = useStore((s) => s.mode);
   const step = useStore((s) => s.tourStep);
   const setStep = useStore((s) => s.setTourStep);
-  const setCameraTarget = useStore((s) => s.setCameraTarget);
+  const focusTarget = useStore((s) => s.focusTarget);
   const setMode = useStore((s) => s.setMode);
 
-  // Build the tour path from real data
-  const stops = [
-    { label: "Welcome · MAS", position: [0, 4.6, 0], distance: 5 },
-    { label: "About Me", position: [0, 2.0, 0], distance: 4 },
-    ...projects.map((p) => ({ label: p.title, position: p.position, distance: 4 })),
-    { label: "Skills", position: [-8, 3.6, 2], distance: 4 },
-    { label: "Resume", position: [8, 2.4, 2], distance: 4 },
-    { label: "Contact", position: [0, 1.2, -8], distance: 4 },
-  ];
+  const stops = useMemo(
+    () => [
+      STATIC_FOCUS_TARGETS.mas,
+      STATIC_FOCUS_TARGETS.about,
+      ...projects.map(getProjectFocusTarget),
+      STATIC_FOCUS_TARGETS.skills,
+      STATIC_FOCUS_TARGETS.resume,
+      STATIC_FOCUS_TARGETS.contact,
+    ],
+    []
+  );
 
   useEffect(() => {
     const onKey = (e) => {
-      if (e.key.toLowerCase() === "t") setMode(mode === "tour" ? "explore" : "tour");
+      const tag = e.target?.tagName?.toLowerCase();
+      const isTyping =
+        tag === "input" ||
+        tag === "textarea" ||
+        tag === "select" ||
+        e.target?.isContentEditable;
+
+      if (isTyping) return;
+
+      if (e.key.toLowerCase() === "t") {
+        setMode(mode === "tour" ? "explore" : "tour");
+      }
     };
+
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [mode, setMode]);
 
   useEffect(() => {
     if (mode !== "tour") return;
-    setCameraTarget(stops[step]);
-    const t = setTimeout(() => {
-      const next = (step + 1) % stops.length;
-      setStep(next);
-    }, 4500);
-    return () => clearTimeout(t);
-    // eslint-disable-next-line
-  }, [mode, step]);
+
+    const safeStep = step % stops.length;
+    focusTarget(stops[safeStep]);
+
+    const timer = setTimeout(() => {
+      setStep((safeStep + 1) % stops.length);
+    }, 4600);
+
+    return () => clearTimeout(timer);
+  }, [mode, step, stops, focusTarget, setStep]);
 
   return null;
 }
