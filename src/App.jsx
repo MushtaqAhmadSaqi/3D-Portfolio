@@ -12,7 +12,7 @@ import ContactModal from "./components/ContactModal.jsx";
 import SoundManager from "./components/SoundManager.jsx";
 import MobileFallback from "./components/MobileFallback.jsx";
 import { useDeviceCapability } from "./utils/useDeviceCapability.js";
-import { useStore } from "../utils/useStore.js";
+import { useStore } from "./utils/useStore.js";
 
 export default function App() {
   const capability = useDeviceCapability();
