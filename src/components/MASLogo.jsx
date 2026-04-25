@@ -5,25 +5,45 @@ import { profile } from "../data/profile.js";
 
 /**
  * Floating 3D "MAS" monogram in the center of the scene.
- * Uses a built-in Drei font via the /fonts URL (loaded lazily).
- * Swap `font` to a local file in /public if you want a custom typeface.
+ * Premium version: stronger centerpiece, orbit rings, and soft glow plate.
  */
 export default function MASLogo({ position = [0, 4.5, 0] }) {
-  const ref = useRef();
-  useFrame((state) => {
-    if (!ref.current) return;
-    ref.current.rotation.y = Math.sin(state.clock.elapsedTime * 0.3) * 0.2;
+  const groupRef = useRef();
+  const ringARef = useRef();
+  const ringBRef = useRef();
+  const glowRef = useRef();
+
+  useFrame((state, dt) => {
+    const time = state.clock.elapsedTime;
+
+    if (groupRef.current) {
+      groupRef.current.rotation.y = Math.sin(time * 0.3) * 0.2;
+    }
+
+    if (ringARef.current) {
+      ringARef.current.rotation.z += dt * 0.24;
+      ringARef.current.rotation.y = Math.sin(time * 0.18) * 0.2;
+    }
+
+    if (ringBRef.current) {
+      ringBRef.current.rotation.z -= dt * 0.18;
+      ringBRef.current.rotation.x = Math.sin(time * 0.16) * 0.22;
+    }
+
+    if (glowRef.current) {
+      glowRef.current.material.opacity = 0.075 + Math.sin(time * 1.2) * 0.015;
+    }
   });
 
   return (
-    <Float speed={1.2} rotationIntensity={0.35} floatIntensity={0.6}>
-      <group ref={ref} position={position}>
+    <Float speed={1.05} rotationIntensity={0.24} floatIntensity={0.42}>
+      <group ref={groupRef} position={position}>
         <Center>
           <Text3D
             font="https://threejs.org/examples/fonts/helvetiker_bold.typeface.json"
-            size={1.2}
+            size={1.18}
             height={0.25}
-            curveSegments={8}
+            curveSegments={10}
             bevelEnabled
             bevelSize={0.035}
             bevelThickness={0.04}
@@ -32,16 +52,31 @@ export default function MASLogo({ position = [0, 4.5, 0] }) {
             <meshStandardMaterial
               color="#0b1120"
               emissive="#38bdf8"
-              emissiveIntensity={1.6}
-              metalness={0.9}
-              roughness={0.15}
+              emissiveIntensity={1.55}
+              metalness={0.92}
+              roughness={0.16}
             />
           </Text3D>
         </Center>
-        {/* Soft glow plate behind */}
-        <mesh position={[0, 0, -0.3]}>
-          <circleGeometry args={[1.8, 48]} />
-          <meshBasicMaterial color="#38bdf8" transparent opacity={0.08} />
+
+        <mesh ref={ringARef} rotation={[Math.PI / 2, 0, 0]}>
+          <torusGeometry args={[1.82, 0.012, 8, 96]} />
+          <meshBasicMaterial color="#38bdf8" transparent opacity={0.72} />
+        </mesh>
+
+        <mesh ref={ringBRef} rotation={[Math.PI / 2.4, 0.2, 0.15]}>
+          <torusGeometry args={[2.08, 0.009, 8, 96]} />
+          <meshBasicMaterial color="#a78bfa" transparent opacity={0.48} />
+        </mesh>
+
+        <mesh ref={glowRef} position={[0, 0, -0.34]}>
+          <circleGeometry args={[2.15, 64]} />
+          <meshBasicMaterial color="#38bdf8" transparent opacity={0.08} depthWrite={false} />
+        </mesh>
+
+        <mesh position={[0, -0.86, 0]}>
+          <boxGeometry args={[2.8, 0.018, 0.018]} />
+          <meshBasicMaterial color="#f472b6" transparent opacity={0.45} />
         </mesh>
       </group>
     </Float>

@@ -800,3 +800,49 @@ footer { text-align: center; color: var(--text-muted); font-size: 0.85rem; paddi
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+/* ---------- VISUAL POLISH PASS ---------- */
+.holo-label {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 10px 30px rgba(0, 0, 0, 0.18);
+}
+
+.holo-label-active {
+  background:
+    linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(11, 17, 32, 0.82)),
+    radial-gradient(circle at top left, color-mix(in srgb, var(--accent, #38bdf8) 22%, transparent), transparent 52%);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--accent, #38bdf8) 30%, transparent),
+    0 0 22px color-mix(in srgb, var(--accent, #38bdf8) 34%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.modal {
+  box-shadow:
+    0 30px 80px rgba(0, 0, 0, 0.62),
+    0 0 0 1px color-mix(in srgb, var(--accent, #38bdf8) 22%, transparent),
+    0 0 44px color-mix(in srgb, var(--accent, #38bdf8) 10%, transparent);
+}
+
+.brand-chip,
+.chip,
+.mode-toggle,
+.hint,
+.minimap,
+.holo-label {
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+
+.btn-primary {
+  background:
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.22), transparent 36%),
+    linear-gradient(135deg, var(--accent), #0ea5e9);
+}
+
+.btn-primary:hover {
+  box-shadow:
+    0 14px 34px rgba(56, 189, 248, 0.32),
+    0 0 0 1px rgba(255, 255, 255, 0.08);
+}

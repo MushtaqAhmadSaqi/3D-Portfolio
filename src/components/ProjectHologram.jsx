@@ -29,6 +29,37 @@ function ProjectScreenMaterial({ project }) {
   );
 }
 
+function CornerAccents({ color }) {
+  const materialProps = {
+    color,
+    transparent: true,
+    opacity: 0.82,
+    depthWrite: false,
+  };
+
+  return (
+    <group position={[0, 0, 0.082]}>
+      {[
+        [-1.52, 0.95, 0],
+        [1.52, 0.95, Math.PI / 2],
+        [1.52, -0.95, Math.PI],
+        [-1.52, -0.95, -Math.PI / 2],
+      ].map(([x, y, rotation], index) => (
+        <group key={index} position={[x, y, 0]} rotation={[0, 0, rotation]}>
+          <mesh position={[0.12, 0, 0]}>
+            <boxGeometry args={[0.24, 0.018, 0.008]} />
+            <meshBasicMaterial {...materialProps} />
+          </mesh>
+          <mesh position={[0, -0.12, 0]}>
+            <boxGeometry args={[0.018, 0.24, 0.008]} />
+            <meshBasicMaterial {...materialProps} />
+          </mesh>
+        </group>
+      ))}
+    </group>
+  );
+}
+
 /**
  * Floating holographic "screen" for a single project.
  */
@@ -39,6 +70,7 @@ export default function ProjectHologram({ project }) {
 
   const meshRef = useRef();
   const glowRef = useRef();
+  const scanRef = useRef();
   const [hovered, setHovered] = useState(false);
 
   const isFocused = activeFocus?.id === project.id;
@@ -49,7 +81,7 @@ export default function ProjectHologram({ project }) {
 
     const t = state.clock.elapsedTime;
     const baseY = project.position?.[1] ?? 1;
-    const targetScale = isActive ? 1.06 : 1;
+    const targetScale = isActive ? 1.065 : 1;
 
     meshRef.current.position.y =
       baseY + Math.sin(t * 0.75 + project.position[0]) * 0.065;
@@ -64,7 +96,7 @@ export default function ProjectHologram({ project }) {
     meshRef.current.scale.setScalar(smoothScale);
 
     if (glowRef.current) {
-      const targetOpacity = isActive ? 0.52 : 0.18 + Math.sin(t * 1.2) * 0.035;
+      const targetOpacity = isActive ? 0.54 : 0.18 + Math.sin(t * 1.2) * 0.035;
 
       glowRef.current.material.opacity = THREE.MathUtils.damp(
         glowRef.current.material.opacity,
@@ -72,6 +104,11 @@ export default function ProjectHologram({ project }) {
         8,
         dt
       );
+    }
+
+    if (scanRef.current) {
+      scanRef.current.position.y = -0.88 + ((t * 0.18 + project.number * 0.07) % 1.76);
+      scanRef.current.material.opacity = isActive ? 0.18 : 0.1;
     }
   });
 
@@ -102,28 +139,65 @@ export default function ProjectHologram({ project }) {
         }}
         onClick={handleClick}
       >
-        <RoundedBox args={[3.2, 2.0, 0.12]} radius={0.08} smoothness={4}>
+        <RoundedBox args={[3.25, 2.05, 0.13]} radius={0.08} smoothness={4}>
           <meshStandardMaterial
             color="#0b1120"
             emissive={project.accent}
-            emissiveIntensity={isActive ? 0.62 : 0.22}
-            metalness={0.78}
-            roughness={0.24}
+            emissiveIntensity={isActive ? 0.68 : 0.24}
+            metalness={0.82}
+            roughness={0.22}
           />
         </RoundedBox>
 
-        <mesh position={[0, 0, 0.065]}>
+        <mesh position={[0, 0, 0.066]}>
           <planeGeometry args={[3.0, 1.82]} />
           <ProjectScreenMaterial project={project} />
         </mesh>
 
+        {/* Premium hologram tint */}
+        <mesh position={[0, 0, 0.073]}>
+          <planeGeometry args={[3.0, 1.82]} />
+          <meshBasicMaterial
+            color={project.accent}
+            transparent
+            opacity={isActive ? 0.13 : 0.08}
+            depthWrite={false}
+            blending={THREE.AdditiveBlending}
+          />
+        </mesh>
+
+        {/* Soft moving scanline */}
+        <mesh ref={scanRef} position={[0, 0, 0.081]}>
+          <planeGeometry args={[3.0, 0.035]} />
+          <meshBasicMaterial
+            color="#ffffff"
+            transparent
+            opacity={0.1}
+            depthWrite={false}
+            blending={THREE.AdditiveBlending}
+          />
+        </mesh>
+
+        {/* Top and bottom edge glow */}
+        <mesh position={[0, 0.94, 0.086]}>
+          <boxGeometry args={[3.02, 0.018, 0.008]} />
+          <meshBasicMaterial color={project.accent} transparent opacity={0.74} />
+        </mesh>
+        <mesh position={[0, -0.94, 0.086]}>
+          <boxGeometry args={[3.02, 0.018, 0.008]} />
+          <meshBasicMaterial color={project.accent} transparent opacity={0.44} />
+        </mesh>
+
+        <CornerAccents color={project.accent} />
+
         <mesh ref={glowRef} position={[0, 0, -0.08]}>
-          <planeGeometry args={[3.9, 2.7]} />
+          <planeGeometry args={[3.95, 2.78]} />
           <meshBasicMaterial
             color={project.accent}
             transparent
             opacity={0.2}
             depthWrite={false}
+            blending={THREE.AdditiveBlending}
           />
         </mesh>
 

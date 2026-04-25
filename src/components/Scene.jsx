@@ -9,6 +9,7 @@ import {
   PerformanceMonitor,
 } from "@react-three/drei";
 import { EffectComposer, Bloom, Vignette } from "@react-three/postprocessing";
+import * as THREE from "three";
 import MASLogo from "./MASLogo.jsx";
 import ProjectHologram from "./ProjectHologram.jsx";
 import SkillsCluster from "./SkillsCluster.jsx";
@@ -18,6 +19,7 @@ import ResumeObelisk from "./ResumeObelisk.jsx";
 import Particles from "./Particles.jsx";
 import CameraRig from "./CameraRig.jsx";
 import GuidedTour from "./GuidedTour.jsx";
+import StudioFloor from "./StudioFloor.jsx";
 import { projects } from "../data/projects.js";
 import { useStore } from "../utils/useStore.js";
 
@@ -40,7 +42,7 @@ const QUALITY_SETTINGS = {
     starCount: 1800,
     particleCount: 160,
     bloom: true,
-    bloomIntensity: 0.45,
+    bloomIntensity: 0.42,
     contactShadows: true,
     environment: true,
     antialias: true,
@@ -51,7 +53,7 @@ const QUALITY_SETTINGS = {
     starCount: 3000,
     particleCount: 260,
     bloom: true,
-    bloomIntensity: 0.75,
+    bloomIntensity: 0.68,
     contactShadows: true,
     environment: true,
     antialias: true,
@@ -119,6 +121,11 @@ export default function Scene() {
         stencil: false,
         powerPreference: "high-performance",
       }}
+      onCreated={({ gl }) => {
+        gl.outputColorSpace = THREE.SRGBColorSpace;
+        gl.toneMapping = THREE.ACESFilmicToneMapping;
+        gl.toneMappingExposure = 1.08;
+      }}
       camera={{ position: [0, 3, 14], fov: 55, near: 0.1, far: 100 }}
       style={{ position: "fixed", inset: 0, zIndex: 0 }}
     >
@@ -126,26 +133,51 @@ export default function Scene() {
       <AdaptiveEvents />
 
       {/* Background */}
-      <color attach="background" args={["#07091a"]} />
-      <fog attach="fog" args={["#07091a", 18, 38]} />
+      <color attach="background" args={["#0b1120"]} />
+      <fog attach="fog" args={["#0b1120", 17, 38]} />
 
-      {/* Lights */}
-      <ambientLight intensity={0.38} />
-      <directionalLight position={[5, 8, 5]} intensity={0.65} color="#a78bfa" />
-      <pointLight position={[-6, 3, -4]} intensity={1.05} color="#38bdf8" distance={20} />
-      <pointLight position={[6, 3, 4]} intensity={0.9} color="#f472b6" distance={20} />
+      {/* Premium minimal space lighting */}
+      <ambientLight intensity={0.28} />
+      <hemisphereLight
+        args={["#38bdf8", "#05070f", 0.28]}
+      />
+      <directionalLight
+        position={[4, 8, 6]}
+        intensity={0.82}
+        color="#dbeafe"
+      />
+      <pointLight
+        position={[-7, 3.2, -4]}
+        intensity={1.25}
+        color="#38bdf8"
+        distance={22}
+      />
+      <pointLight
+        position={[7, 3.4, 4]}
+        intensity={1.05}
+        color="#f472b6"
+        distance={22}
+      />
+      <pointLight
+        position={[0, 6, 0]}
+        intensity={0.82}
+        color="#a78bfa"
+        distance={18}
+      />
 
       {settings.environment && <Environment preset="night" />}
 
       <Stars
-        radius={60}
-        depth={40}
+        radius={64}
+        depth={42}
         count={settings.starCount}
         factor={3}
         saturation={0}
         fade
-        speed={reducedMotion ? 0 : 0.35}
+        speed={reducedMotion ? 0 : 0.28}
       />
+
+      <StudioFloor quality={quality} />
 
       {/* Scene content */}
       <group>
@@ -165,15 +197,14 @@ export default function Scene() {
       {settings.contactShadows && (
         <ContactShadows
           position={[0, -0.5, 0]}
-          opacity={0.36}
+          opacity={0.32}
           scale={34}
-          blur={2.4}
+          blur={2.6}
           far={7}
           color="#38bdf8"
         />
       )}
 
-      {/* Camera behavior */}
       <OrbitControls
         ref={controlsRef}
         enablePan={false}
@@ -185,7 +216,7 @@ export default function Scene() {
         minPolarAngle={0.3}
         maxPolarAngle={Math.PI / 2 + 0.15}
         autoRotate={entered && settings.autoRotate && !reducedMotion}
-        autoRotateSpeed={0.22}
+        autoRotateSpeed={0.2}
       />
 
       <CameraRig controlsRef={controlsRef} />
@@ -195,11 +226,11 @@ export default function Scene() {
         <EffectComposer disableNormalPass multisampling={0}>
           <Bloom
             intensity={settings.bloomIntensity}
-            luminanceThreshold={0.32}
-            luminanceSmoothing={0.88}
+            luminanceThreshold={0.34}
+            luminanceSmoothing={0.86}
             mipmapBlur
           />
-          <Vignette eskil={false} offset={0.18} darkness={0.72} />
+          <Vignette eskil={false} offset={0.2} darkness={0.68} />
         </EffectComposer>
       )}
     </Canvas>
