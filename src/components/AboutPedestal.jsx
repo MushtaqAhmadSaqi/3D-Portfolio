@@ -1,6 +1,6 @@
-import React, { Suspense, useEffect, useRef } from "react";
+import React, { Suspense, useEffect, useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
-import { useTexture, Html, RoundedBox } from "@react-three/drei";
+import { useTexture, Html, RoundedBox, useCursor } from "@react-three/drei";
 import * as THREE from "three";
 import { useStore } from "../utils/useStore.js";
 import { profile } from "../data/profile.js";
@@ -22,7 +22,13 @@ function PortraitMaterial({ src }) {
  */
 export default function AboutPedestal({ position }) {
   const toggleAbout = useStore((s) => s.toggleAbout);
+  const playHoverSound = useStore((s) => s.playHoverSound);
+  const playClickSound = useStore((s) => s.playClickSound);
+
   const ringRef = useRef();
+  const [hovered, setHovered] = useState(false);
+
+  useCursor(hovered);
 
   useFrame((_, dt) => {
     if (ringRef.current) ringRef.current.rotation.z += dt * 0.25;
@@ -30,7 +36,6 @@ export default function AboutPedestal({ position }) {
 
   return (
     <group position={position}>
-      {/* Base pedestal */}
       <mesh position={[0, 0, 0]} receiveShadow>
         <cylinderGeometry args={[1.3, 1.6, 0.4, 40]} />
         <meshStandardMaterial color="#111827" metalness={0.7} roughness={0.34} />
@@ -45,25 +50,28 @@ export default function AboutPedestal({ position }) {
         />
       </mesh>
 
-      {/* Floating portrait frame */}
       <group
         position={[0, 2.0, 0]}
-        onPointerOver={() => {
-          document.body.style.cursor = "pointer";
+        onPointerOver={(e) => {
+          e.stopPropagation();
+          setHovered(true);
+          playHoverSound();
         }}
-        onPointerOut={() => {
-          document.body.style.cursor = "auto";
+        onPointerOut={(e) => {
+          e.stopPropagation();
+          setHovered(false);
         }}
         onClick={(e) => {
           e.stopPropagation();
           toggleAbout(true);
+          playClickSound();
         }}
       >
         <RoundedBox args={[1.6, 1.9, 0.1]} radius={0.08} smoothness={4}>
           <meshStandardMaterial
             color="#0b1120"
             emissive="#38bdf8"
-            emissiveIntensity={0.28}
+            emissiveIntensity={hovered ? 0.42 : 0.28}
             metalness={0.58}
             roughness={0.34}
           />
@@ -76,10 +84,9 @@ export default function AboutPedestal({ position }) {
           </Suspense>
         </mesh>
 
-        {/* Rotating rim */}
         <mesh ref={ringRef}>
           <torusGeometry args={[1.3, 0.02, 8, 56]} />
-          <meshBasicMaterial color="#38bdf8" transparent opacity={0.58} />
+          <meshBasicMaterial color="#38bdf8" transparent opacity={hovered ? 0.74 : 0.58} />
         </mesh>
 
         <Html

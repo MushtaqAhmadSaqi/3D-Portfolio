@@ -1,5 +1,12 @@
 import { create } from "zustand";
 
+const noop = () => {};
+
+const defaultSoundApi = {
+  playHover: noop,
+  playClick: noop,
+};
+
 // Global UI state: modals, mode toggles, sound, tour step, etc.
 export const useStore = create((set, get) => ({
   // Lifecycle
@@ -62,6 +69,11 @@ export const useStore = create((set, get) => ({
   // Sound
   muted: true,
   toggleMuted: () => set({ muted: !get().muted }),
+
+  soundApi: defaultSoundApi,
+  setSoundApi: (api) => set({ soundApi: api ?? defaultSoundApi }),
+  playHoverSound: () => get().soundApi.playHover?.(),
+  playClickSound: () => get().soundApi.playClick?.(),
 
   // Experience routing
   // null = automatic, "2d" = force fallback, "3d" = force 3D even on low-power devices

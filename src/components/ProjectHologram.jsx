@@ -1,6 +1,6 @@
 import React, { Suspense, useEffect, useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
-import { useTexture, Float, Html, RoundedBox } from "@react-three/drei";
+import { useTexture, Float, Html, RoundedBox, useCursor } from "@react-three/drei";
 import * as THREE from "three";
 import { useStore } from "../utils/useStore.js";
 import { getProjectFocusTarget } from "../utils/focusTargets.js";
@@ -67,11 +67,15 @@ export default function ProjectHologram({ project }) {
   const openProject = useStore((s) => s.openProject);
   const focusTarget = useStore((s) => s.focusTarget);
   const activeFocus = useStore((s) => s.activeFocus);
+  const playHoverSound = useStore((s) => s.playHoverSound);
+  const playClickSound = useStore((s) => s.playClickSound);
 
   const meshRef = useRef();
   const glowRef = useRef();
   const scanRef = useRef();
   const [hovered, setHovered] = useState(false);
+
+  useCursor(hovered);
 
   const isFocused = activeFocus?.id === project.id;
   const isActive = hovered || isFocused;
@@ -107,7 +111,8 @@ export default function ProjectHologram({ project }) {
     }
 
     if (scanRef.current) {
-      scanRef.current.position.y = -0.88 + ((t * 0.18 + project.number * 0.07) % 1.76);
+      const number = Number(project.number) || 0;
+      scanRef.current.position.y = -0.88 + ((t * 0.18 + number * 0.07) % 1.76);
       scanRef.current.material.opacity = isActive ? 0.18 : 0.1;
     }
   });
@@ -117,8 +122,7 @@ export default function ProjectHologram({ project }) {
 
     focusTarget(getProjectFocusTarget(project));
     openProject(project);
-
-    window.playClickSound?.();
+    playClickSound();
   };
 
   return (
@@ -130,12 +134,11 @@ export default function ProjectHologram({ project }) {
         onPointerOver={(e) => {
           e.stopPropagation();
           setHovered(true);
-          document.body.style.cursor = "pointer";
-          window.playHoverSound?.();
+          playHoverSound();
         }}
-        onPointerOut={() => {
+        onPointerOut={(e) => {
+          e.stopPropagation();
           setHovered(false);
-          document.body.style.cursor = "auto";
         }}
         onClick={handleClick}
       >
@@ -154,7 +157,6 @@ export default function ProjectHologram({ project }) {
           <ProjectScreenMaterial project={project} />
         </mesh>
 
-        {/* Premium hologram tint */}
         <mesh position={[0, 0, 0.073]}>
           <planeGeometry args={[3.0, 1.82]} />
           <meshBasicMaterial
@@ -166,7 +168,6 @@ export default function ProjectHologram({ project }) {
           />
         </mesh>
 
-        {/* Soft moving scanline */}
         <mesh ref={scanRef} position={[0, 0, 0.081]}>
           <planeGeometry args={[3.0, 0.035]} />
           <meshBasicMaterial
@@ -178,11 +179,11 @@ export default function ProjectHologram({ project }) {
           />
         </mesh>
 
-        {/* Top and bottom edge glow */}
         <mesh position={[0, 0.94, 0.086]}>
           <boxGeometry args={[3.02, 0.018, 0.008]} />
           <meshBasicMaterial color={project.accent} transparent opacity={0.74} />
         </mesh>
+
         <mesh position={[0, -0.94, 0.086]}>
           <boxGeometry args={[3.02, 0.018, 0.008]} />
           <meshBasicMaterial color={project.accent} transparent opacity={0.44} />

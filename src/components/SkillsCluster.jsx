@@ -1,7 +1,8 @@
 import React, { useRef, useMemo, useState } from "react";
 import { useFrame } from "@react-three/fiber";
-import { Html, RoundedBox } from "@react-three/drei";
+import { Html, RoundedBox, useCursor } from "@react-three/drei";
 import { profile } from "../data/profile.js";
+import { useStore } from "../utils/useStore.js";
 
 /**
  * A cluster of floating skill pills arranged spherically,
@@ -9,16 +10,24 @@ import { profile } from "../data/profile.js";
  */
 export default function SkillsCluster({ position }) {
   const groupRef = useRef();
+
+  const playHoverSound = useStore((s) => s.playHoverSound);
+  const playClickSound = useStore((s) => s.playClickSound);
+
   const skills = useMemo(() => {
-    // Flatten skills into an array of {category, skill}
     const arr = [];
-    Object.entries(profile.skills).forEach(([cat, list]) => {
-      list.forEach((skill) => arr.push({ category: cat, skill }));
+
+    Object.entries(profile.skills).forEach(([category, list]) => {
+      list.forEach((skill) => arr.push({ category, skill }));
     });
+
     return arr;
   }, []);
 
   const [hoveredIndex, setHoveredIndex] = useState(null);
+  const [selectedSkill, setSelectedSkill] = useState(null);
+
+  useCursor(hoveredIndex !== null);
 
   useFrame((state, dt) => {
     if (groupRef.current) {
@@ -27,14 +36,13 @@ export default function SkillsCluster({ position }) {
     }
   });
 
-  // Arrange pills evenly on a sphere
   const radius = 2.9;
-  const phiStep = Math.PI * (3 - Math.sqrt(5)); // golden angle
+  const phiStep = Math.PI * (3 - Math.sqrt(5));
 
   return (
     <group position={position} ref={groupRef}>
       {skills.map(({ skill, category }, i) => {
-        const y = 1 - (i / (skills.length - 1)) * 2; // y from 1 to -1
+        const y = 1 - (i / Math.max(1, skills.length - 1)) * 2;
         const radiusAtY = Math.sqrt(1 - y * y);
         const theta = phiStep * i;
         const x = Math.cos(theta) * radiusAtY;
@@ -42,9 +50,10 @@ export default function SkillsCluster({ position }) {
 
         const pos = [x * radius, y * radius, z * radius];
         const isHovered = hoveredIndex === i;
+        const isSelected = selectedSkill?.skill === skill;
 
         return (
-          <group key={skill} position={pos}>
+          <group key={`${category}-${skill}`} position={pos}>
             <RoundedBox
               args={[0.9, 0.34, 0.18]}
               radius={0.1}
@@ -52,25 +61,23 @@ export default function SkillsCluster({ position }) {
               onPointerOver={(e) => {
                 e.stopPropagation();
                 setHoveredIndex(i);
-                document.body.style.cursor = "pointer";
-                window.playHoverSound?.();
+                playHoverSound();
               }}
               onPointerOut={(e) => {
                 e.stopPropagation();
                 setHoveredIndex(null);
-                document.body.style.cursor = "auto";
               }}
               onClick={(e) => {
                 e.stopPropagation();
-                alert(`Skill: ${skill}\nCategory: ${category}`);
-                window.playClickSound?.();
+                setSelectedSkill({ skill, category });
+                playClickSound();
               }}
-              scale={isHovered ? 1.12 : 1}
+              scale={isHovered || isSelected ? 1.12 : 1}
             >
               <meshStandardMaterial
-                color={isHovered ? "#a78bfa" : "#0b1120"}
-                emissive={isHovered ? "#a78bfa" : "#a78bfa"}
-                emissiveIntensity={isHovered ? 0.8 : 0.3}
+                color={isHovered || isSelected ? "#a78bfa" : "#0b1120"}
+                emissive="#a78bfa"
+                emissiveIntensity={isHovered || isSelected ? 0.82 : 0.3}
                 metalness={0.7}
                 roughness={0.3}
               />
@@ -82,8 +89,8 @@ export default function SkillsCluster({ position }) {
               style={{
                 pointerEvents: "none",
                 userSelect: "none",
-                color: isHovered ? "#a78bfa" : "#b6c3d8",
-                fontWeight: isHovered ? "700" : "500",
+                color: isHovered || isSelected ? "#a78bfa" : "#b6c3d8",
+                fontWeight: isHovered || isSelected ? "700" : "500",
                 fontSize: "0.75rem",
                 whiteSpace: "nowrap",
                 textShadow: "0 0 6px rgba(167,139,250,0.8)",
@@ -96,10 +103,13 @@ export default function SkillsCluster({ position }) {
         );
       })}
 
-      {/* Label */}
       <Html position={[0, -3.2, 0]} center distanceFactor={10} style={{ pointerEvents: "none" }}>
         <div className="holo-label" style={{ borderColor: "#a78bfa" }}>
-          <span className="holo-title">Skills</span>
+          <span className="holo-title">
+            {selectedSkill
+              ? `${selectedSkill.skill} · ${selectedSkill.category}`
+              : "Skills"}
+          </span>
         </div>
       </Html>
     </group>
