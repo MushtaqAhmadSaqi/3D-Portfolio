@@ -13,10 +13,11 @@ export default function HUD() {
 
   return (
     <>
-      {/* Top-left brand */}
       <div className="hud hud-top-left">
-        <div className="brand-chip">
-          <span className="brand-mark">{profile.initials}</span>
+        <div className="brand-chip" aria-label={`${profile.name}, ${profile.role}`}>
+          <span className="brand-mark" aria-hidden="true">
+            {profile.initials}
+          </span>
           <div>
             <div className="brand-name">{profile.name}</div>
             <div className="brand-role">{profile.role}</div>
@@ -24,42 +25,67 @@ export default function HUD() {
         </div>
       </div>
 
-      {/* Top-right nav */}
-      <div className="hud hud-top-right">
-        <button className="chip" onClick={() => toggleAbout(true)}>About</button>
-        <button className="chip" onClick={() => toggleContact(true)}>Contact</button>
-        <a className="chip" href={profile.github} target="_blank" rel="noopener">GitHub</a>
-        <a className="chip" href={profile.linkedin} target="_blank" rel="noopener">LinkedIn</a>
-        <a className="chip primary" href={profile.resume} download>Resume ↓</a>
-      </div>
+      <nav className="hud hud-top-right" aria-label="Primary portfolio navigation">
+        <button className="chip" onClick={() => toggleAbout(true)}>
+          About
+        </button>
 
-      {/* Bottom-left: mode toggle + sound + 2D */}
+        <button className="chip" onClick={() => toggleContact(true)}>
+          Contact
+        </button>
+
+        <a className="chip" href={profile.github} target="_blank" rel="noopener noreferrer">
+          GitHub
+        </a>
+
+        <a className="chip" href={profile.linkedin} target="_blank" rel="noopener noreferrer">
+          LinkedIn
+        </a>
+
+        <a className="chip primary" href={profile.resume} download>
+          Resume ↓
+        </a>
+      </nav>
+
       <div className="hud hud-bottom-left">
-        <div className="mode-toggle">
+        <div className="mode-toggle" role="group" aria-label="Experience mode">
           <button
             className={mode === "explore" ? "active" : ""}
+            aria-pressed={mode === "explore"}
             onClick={() => setMode("explore")}
           >
             Free Explore
           </button>
+
           <button
             className={mode === "tour" ? "active" : ""}
+            aria-pressed={mode === "tour"}
             onClick={() => setMode("tour")}
           >
             Guided Tour
           </button>
         </div>
-        <button className="chip" onClick={toggleMuted} aria-label="Toggle sound">
+
+        <button
+          className="chip"
+          onClick={toggleMuted}
+          aria-pressed={!muted}
+          aria-label={muted ? "Turn sound on" : "Turn sound off"}
+        >
           {muted ? "🔇 Sound off" : "🔊 Sound on"}
         </button>
-        <button className="chip ghost" onClick={() => setFallback(true)}>
+
+        <button
+          className="chip ghost"
+          onClick={() => setFallback(true)}
+          aria-label="Switch to the lightweight 2D portfolio"
+        >
           Switch to 2D
         </button>
       </div>
 
-      {/* Bottom-right: interaction hint */}
       <div className="hud hud-bottom-right">
-        <div className="hint">
+        <div className="hint" role="note">
           Drag to look · Scroll to zoom · Click holograms · Press <kbd>T</kbd> for tour
         </div>
       </div>

@@ -846,3 +846,50 @@ footer { text-align: center; color: var(--text-muted); font-size: 0.85rem; paddi
     0 14px 34px rgba(56, 189, 248, 0.32),
     0 0 0 1px rgba(255, 255, 255, 0.08);
 }
+
+/* ---------- ACCESSIBILITY PASS ---------- */
+.modal-open {
+  overflow: hidden;
+}
+
+.modal:focus {
+  outline: none;
+}
+
+.modal-backdrop {
+  overscroll-behavior: contain;
+}
+
+.modal-close:focus-visible,
+.chip:focus-visible,
+.btn:focus-visible,
+.mode-toggle button:focus-visible,
+.contact-card:focus-visible,
+.minimap-dot:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.form-status[role="status"] {
+  min-height: 1.25rem;
+}
+
+.contact-form input:invalid:not(:placeholder-shown),
+.contact-form textarea:invalid:not(:placeholder-shown) {
+  border-color: color-mix(in srgb, var(--accent-3) 70%, white 0%);
+}
+
+.mode-toggle button[aria-pressed="true"] {
+  box-shadow: 0 0 18px rgba(56, 189, 248, 0.18);
+}
+
+@media (max-width: 560px) {
+  .modal {
+    max-height: 86vh;
+  }
+
+  .modal-close {
+    width: 42px;
+    height: 42px;
+  }
+}
