@@ -40,6 +40,7 @@ export default function ProjectHologram({ project }) {
   const screenGlowRef = useRef();
   const dockGlowRef = useRef();
   const featuredRingRef = useRef();
+  const scanlineRef = useRef();
 
   const [hovered, setHovered] = useState(false);
   useCursor(hovered);
@@ -55,8 +56,12 @@ export default function ProjectHologram({ project }) {
     const baseY = project.position?.[1] ?? 1;
     const targetScale = isActive ? 1.045 : 1;
 
+    // Subtle glitch/jitter on hover
+    const jitter = isActive ? (Math.random() - 0.5) * 0.008 : 0;
+    groupRef.current.position.x = project.position[0] + jitter;
+
     groupRef.current.position.y =
-      baseY + Math.sin(t * 0.7 + project.position[0]) * 0.07;
+      baseY + Math.sin(t * 0.7 + project.position[0]) * 0.07 + jitter;
 
     const nextScale = THREE.MathUtils.damp(groupRef.current.scale.x, targetScale, 8, dt);
     groupRef.current.scale.setScalar(nextScale);
@@ -83,6 +88,12 @@ export default function ProjectHologram({ project }) {
 
     if (featuredRingRef.current) {
       featuredRingRef.current.rotation.z += dt * 0.14;
+    }
+
+    if (scanlineRef.current) {
+      // Loop from bottom to top of the screen (-0.85 to 0.85 relative to center)
+      const scanY = ((t * 0.45) % 1.7) - 0.85;
+      scanlineRef.current.position.y = 0.18 + scanY;
     }
   });
 
@@ -171,6 +182,18 @@ export default function ProjectHologram({ project }) {
             color={project.accent}
             transparent
             opacity={isActive ? 0.12 : 0.06}
+            depthWrite={false}
+            blending={THREE.AdditiveBlending}
+          />
+        </mesh>
+
+        {/* Moving scanline effect */}
+        <mesh ref={scanlineRef} position={[0, 0.18, 0.098]}>
+          <planeGeometry args={[3.08, 0.04]} />
+          <meshBasicMaterial
+            color={project.accent}
+            transparent
+            opacity={isActive ? 0.32 : 0.14}
             depthWrite={false}
             blending={THREE.AdditiveBlending}
           />

@@ -15,6 +15,7 @@ export default function MASLogo({ position = [0, 4.5, 0] }) {
 
   useFrame((state, dt) => {
     const time = state.clock.elapsedTime;
+    const pulse = 0.5 + Math.sin(time * 0.8) * 0.5; // Breathing value 0-1
 
     if (groupRef.current) {
       groupRef.current.rotation.y = Math.sin(time * 0.3) * 0.2;
@@ -31,7 +32,13 @@ export default function MASLogo({ position = [0, 4.5, 0] }) {
     }
 
     if (glowRef.current) {
-      glowRef.current.material.opacity = 0.075 + Math.sin(time * 1.2) * 0.015;
+      glowRef.current.material.opacity = 0.06 + pulse * 0.04;
+    }
+
+    // Direct access to text material for emissive intensity
+    const textMesh = groupRef.current?.children[0]?.children[0];
+    if (textMesh && textMesh.material) {
+      textMesh.material.emissiveIntensity = 1.2 + pulse * 0.8;
     }
   });
 

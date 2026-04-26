@@ -31,6 +31,7 @@ export default function SkillsCluster({ position }) {
 
   useFrame((state, dt) => {
     const t = state.clock.elapsedTime;
+    const pulse = 0.5 + Math.sin(t * 0.8) * 0.5;
 
     if (groupRef.current) {
       groupRef.current.rotation.y += dt * 0.12;
@@ -39,6 +40,12 @@ export default function SkillsCluster({ position }) {
     if (coreRef.current) {
       coreRef.current.rotation.y -= dt * 0.18;
       coreRef.current.position.y = Math.sin(t * 1.2) * 0.08;
+      
+      // Sync emissive pulse
+      const coreMesh = coreRef.current.children[0];
+      if (coreMesh && coreMesh.material) {
+        coreMesh.material.emissiveIntensity = 0.8 + pulse * 0.6;
+      }
     }
 
     if (ringRef.current) {
