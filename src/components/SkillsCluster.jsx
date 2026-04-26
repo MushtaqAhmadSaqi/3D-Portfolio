@@ -12,6 +12,7 @@ import { useStore } from "../utils/useStore.js";
 export default function SkillsCluster({ position }) {
   const groupRef = useRef();
   const coreRef = useRef();
+  const coreGemRef = useRef(); // direct ref to icosahedron mesh
   const ringRef = useRef();
 
   const playHoverSound = useStore((s) => s.playHoverSound);
@@ -40,11 +41,10 @@ export default function SkillsCluster({ position }) {
     if (coreRef.current) {
       coreRef.current.rotation.y -= dt * 0.18;
       coreRef.current.position.y = Math.sin(t * 1.2) * 0.08;
-      
-      // Sync emissive pulse
-      const coreMesh = coreRef.current.children[0];
-      if (coreMesh && coreMesh.material) {
-        coreMesh.material.emissiveIntensity = 0.8 + pulse * 0.6;
+
+      // Sync emissive pulse via direct ref
+      if (coreGemRef.current) {
+        coreGemRef.current.material.emissiveIntensity = 0.8 + pulse * 0.6;
       }
     }
 
@@ -62,7 +62,7 @@ export default function SkillsCluster({ position }) {
         <group ref={groupRef}>
           {/* Core */}
           <group ref={coreRef} position={[0, 0, 0]}>
-            <mesh>
+            <mesh ref={coreGemRef}>
               <icosahedronGeometry args={[0.72, 1]} />
               <meshStandardMaterial
                 color="#0b1120"

@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useRef } from "react";
 import { MeshReflectorMaterial } from "@react-three/drei";
-import * as THREE from "three";
 
 const RING_CONFIG = {
   low: [3.8, 7.2],

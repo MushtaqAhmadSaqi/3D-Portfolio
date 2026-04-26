@@ -11,10 +11,11 @@ export default function LoadingScreen() {
   const setProgress = useStore((s) => s.setProgress);
 
   const loadingMessage = useMemo(() => {
-    if (progress < 30) return "Preparing the studio";
-    if (progress < 65) return "Loading holographic project screens";
-    if (progress < 95) return "Tuning lights, particles, and interactions";
-    return "Almost ready";
+    if (progress < 20) return "Calibrating studio systems";
+    if (progress < 45) return "Loading holographic project screens";
+    if (progress < 70) return "Tuning lights, particles & bloom";
+    if (progress < 95) return "Synchronizing audio engine";
+    return "Studio ready";
   }, [progress]);
 
   useEffect(() => {
@@ -35,19 +36,26 @@ export default function LoadingScreen() {
 
   return (
     <div className="loader" role="status" aria-live="polite" aria-label="Loading 3D portfolio">
+      {/* Decorative scanline */}
+      <div className="loader-scanline" aria-hidden="true" />
+
       <div className="loader-logo" aria-hidden="true">
         <span className="loader-mas">{profile.initials}</span>
         <div className="loader-ring" />
         <div className="loader-ring loader-ring-secondary" />
+        <div className="loader-ring loader-ring-tertiary" />
       </div>
 
       <div className="loader-name">{profile.name}</div>
       <div className="loader-role">{profile.role}</div>
 
-      <p className="loader-message">{loadingMessage}</p>
+      <p className="loader-message">
+        <span className="loader-dot" />{loadingMessage}
+      </p>
 
       <div className="loader-bar" aria-hidden="true">
         <div className="loader-bar-fill" style={{ width: `${pct}%` }} />
+        <div className="loader-bar-shimmer" style={{ left: `${pct}%` }} />
       </div>
 
       <div className="loader-pct">{pct}%</div>

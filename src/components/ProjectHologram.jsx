@@ -41,6 +41,8 @@ export default function ProjectHologram({ project }) {
   const dockGlowRef = useRef();
   const featuredRingRef = useRef();
   const scanlineRef = useRef();
+  const glitchTimer = useRef(0);
+  const glitchOffset = useRef(0);
 
   const [hovered, setHovered] = useState(false);
   useCursor(hovered);
@@ -56,12 +58,19 @@ export default function ProjectHologram({ project }) {
     const baseY = project.position?.[1] ?? 1;
     const targetScale = isActive ? 1.045 : 1;
 
-    // Subtle glitch/jitter on hover
-    const jitter = isActive ? (Math.random() - 0.5) * 0.008 : 0;
-    groupRef.current.position.x = project.position[0] + jitter;
+    // Probabilistic glitch: fires at ~3% chance per frame when active
+    glitchTimer.current -= dt;
+    if (isActive && glitchTimer.current <= 0) {
+      glitchOffset.current = (Math.random() - 0.5) * 0.018;
+      // Next glitch after 0.5–2.5 s
+      glitchTimer.current = 0.5 + Math.random() * 2.0;
+    } else if (!isActive) {
+      glitchOffset.current = THREE.MathUtils.damp(glitchOffset.current, 0, 12, dt);
+    }
 
+    groupRef.current.position.x = project.position[0] + glitchOffset.current;
     groupRef.current.position.y =
-      baseY + Math.sin(t * 0.7 + project.position[0]) * 0.07 + jitter;
+      baseY + Math.sin(t * 0.7 + project.position[0]) * 0.07;
 
     const nextScale = THREE.MathUtils.damp(groupRef.current.scale.x, targetScale, 8, dt);
     groupRef.current.scale.setScalar(nextScale);

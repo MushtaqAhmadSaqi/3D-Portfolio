@@ -10,6 +10,7 @@ import {
 } from "@react-three/drei";
 import { EffectComposer, Bloom, Vignette, ChromaticAberration, Noise } from "@react-three/postprocessing";
 import * as THREE from "three";
+import { Vector2 } from "three";
 import MASLogo from "./MASLogo.jsx";
 import ProjectHologram from "./ProjectHologram.jsx";
 import SkillsCluster from "./SkillsCluster.jsx";
@@ -232,7 +233,7 @@ export default function Scene() {
             luminanceSmoothing={0.86}
             mipmapBlur
           />
-          <ChromaticAberration offset={[0.0006, 0.0006]} />
+          <ChromaticAberration offset={new Vector2(0.0006, 0.0006)} />
           <Noise opacity={0.035} />
           <Vignette eskil={false} offset={0.2} darkness={0.68} />
         </EffectComposer>
