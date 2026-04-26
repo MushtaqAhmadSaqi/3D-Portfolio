@@ -187,7 +187,7 @@ export default function SoundManager() {
 
     try {
       ambientRef.current = new Howl({
-        src: ["/sounds/ambient.mp3"],
+        src: ["sounds/ambient.mp3"],
         loop: true,
         volume: 0.22,
         html5: true,
@@ -196,14 +196,14 @@ export default function SoundManager() {
       });
 
       hoverSoundRef.current = new Howl({
-        src: ["/sounds/hover.mp3"],
+        src: ["sounds/hover.mp3"],
         volume: 0.32,
         onloaderror: useFallbackSounds,
         onplayerror: useFallbackSounds,
       });
 
       clickSoundRef.current = new Howl({
-        src: ["/sounds/click.mp3"],
+        src: ["sounds/click.mp3"],
         volume: 0.48,
         onloaderror: useFallbackSounds,
         onplayerror: useFallbackSounds,

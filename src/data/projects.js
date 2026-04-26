@@ -11,7 +11,7 @@ export const projects = [
     tag: "Education · Exam Prep",
     featured: true,
     accent: "#38bdf8",
-    preview: "/assets/comsatsprephub-preview.png",
+    preview: "assets/comsatsprephub-preview.png",
     short:
       "Student-focused exam prep platform with verified past papers, practice quizzes, and performance analytics.",
     description:
@@ -35,7 +35,7 @@ export const projects = [
     title: "EduLearn",
     tag: "Education · Video Learning",
     accent: "#a78bfa",
-    preview: "/assets/edulearn-preview.png",
+    preview: "assets/edulearn-preview.png",
     short:
       "Distraction-free learning platform with YouTube embedding, playlists, progress tracking, and focus tools.",
     description:
@@ -59,7 +59,7 @@ export const projects = [
     title: "MultiVid / Video Downloader",
     tag: "Utility · Flask",
     accent: "#f472b6",
-    preview: "/assets/video-downloader-preview.png",
+    preview: "assets/video-downloader-preview.png",
     short:
       "Local-first video downloader built with Flask and yt-dlp — paste a URL, pick a format, download.",
     description:
@@ -83,7 +83,7 @@ export const projects = [
     title: "OpenPrep Platform",
     tag: "Education · AI-assisted",
     accent: "#38bdf8",
-    preview: "/assets/openprep-preview.png",
+    preview: "assets/openprep-preview.png",
     short:
       "Learning platform for Pakistani entrance exam prep: 2,100+ MCQs, structured practice, AI workflows.",
     description:
@@ -107,7 +107,7 @@ export const projects = [
     title: "Hotel Management System",
     tag: "Java · OOP",
     accent: "#a78bfa",
-    preview: "/assets/hotel-preview.png",
+    preview: "assets/hotel-preview.png",
     short:
       "Java desktop app modeling hotel operations: room booking, staff handling, JSON persistence.",
     description:
@@ -131,7 +131,7 @@ export const projects = [
     title: "COMSATS Grade Calculator",
     tag: "Academic Utility",
     accent: "#f472b6",
-    preview: "/assets/grade-preview.png",
+    preview: "assets/grade-preview.png",
     short:
       "Web-based GPA calculator built around COMSATS grading rules — fast, simple, student-focused.",
     description:

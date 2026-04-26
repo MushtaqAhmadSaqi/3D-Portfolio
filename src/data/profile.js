@@ -11,8 +11,8 @@ export const profile = {
   email: "mushtaqahmadsaqi@gmail.com",
   github: "https://github.com/MushtaqAhmadSaqi",
   linkedin: "https://linkedin.com/in/mushtaqahmadsaqi",
-  resume: "/assets/Mushtaq_Ahmad_Saqi_Resume.pdf",
-  photo: "/assets/photo.jpg",
+  resume: "assets/Mushtaq_Ahmad_Saqi_Resume.pdf",
+  photo: "assets/photo.jpg",
   typewriter: [
     "Full-Stack Developer",
     "AI Enthusiast",
